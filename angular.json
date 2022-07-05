@@ -3,5 +3,39 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
+    "angular-duet-datepicker": {
+      "projectType": "library",
+      "root": "projects/angular-duet-datepicker",
+      "sourceRoot": "projects/angular-duet-datepicker/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/angular-duet-datepicker/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/angular-duet-datepicker/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/angular-duet-datepicker/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/angular-duet-datepicker/src/test.ts",
+            "tsConfig": "projects/angular-duet-datepicker/tsconfig.spec.json",
+            "karmaConfig": "projects/angular-duet-datepicker/karma.conf.js"
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "95508fec-6c93-47ef-b833-b96e58cdcc85"
   }
 }
