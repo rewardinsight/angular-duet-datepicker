@@ -1,6 +1,6 @@
 {
-  "name": "angular-duet-datepicker",
-  "version": "0.0.3",
+  "name": "@reward-insight/angular-duet-datepicker",
+  "version": "0.0.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/rewardinsight/angular-duet-datepicker"
@@ -11,5 +11,10 @@
   },
   "dependencies": {
     "tslib": "^2.3.0"
-  }
+  },
+  "keywords": [
+    "angular",
+    "datepicker",
+    "duet"
+  ]
 }

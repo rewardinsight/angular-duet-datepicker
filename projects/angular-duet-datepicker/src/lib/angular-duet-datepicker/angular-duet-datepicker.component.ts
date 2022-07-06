@@ -425,6 +425,9 @@ export class AngularDuetDatepickerComponent implements OnInit {
       case keyCode.END:
         this.endOfWeek();
         break;
+      case keyCode.ESC:
+        this.hide(true);
+        break;
       default:
         handled = false;
     }

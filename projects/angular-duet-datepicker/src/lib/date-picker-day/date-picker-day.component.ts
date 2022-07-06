@@ -18,10 +18,25 @@ export class DatePickerDayComponent implements OnInit {
   @Output() onDaySelect = new EventEmitter<OnDaySelectEvent>();
   @Output() onKeyboardNavigation = new EventEmitter<OnKeyboardNavigationEvent>();
 
-  public isToday: boolean = this.dateUtilitiesService.isEqual(this.day, this.today);
-  public isMonth: boolean = this.dateUtilitiesService.isEqualMonth(this.day, this.focusedDay);
-  public isFocused: boolean = this.dateUtilitiesService.isEqual(this.day, this.focusedDay);
+  public id = this.newGuid();
 
+  get isMonth() {
+    return this.dateUtilitiesService.isEqualMonth(this.day, this.focusedDay);
+  }
+
+  get isFocused() {
+    const isFocused = this.dateUtilitiesService.isEqual(this.day, this.focusedDay);
+
+    if (isFocused) {
+      document.getElementById(this.id)?.focus();
+    }
+
+    return isFocused;
+  }
+
+  get isToday() {
+    return this.dateUtilitiesService.isEqual(this.day, this.today);
+  }
 
   constructor(private dateUtilitiesService: DateUtilitiesService) {
   }
@@ -36,6 +51,14 @@ export class DatePickerDayComponent implements OnInit {
   handleKeyboardNavigation(e: KeyboardEvent) {
     this.onKeyboardNavigation.emit(new OnKeyboardNavigationEvent(e));
   }
+
+  newGuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0,
+        v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
 }
 
 export class OnDaySelectEvent {
@@ -45,3 +68,5 @@ export class OnDaySelectEvent {
 export class OnKeyboardNavigationEvent {
   constructor(public event: KeyboardEvent) {}
 }
+
+

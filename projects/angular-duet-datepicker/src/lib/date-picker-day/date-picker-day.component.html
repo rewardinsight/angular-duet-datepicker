@@ -1,4 +1,5 @@
 <button class="duet-date__day" type="button"
+  [id]="id"
   [ngClass]="{ 'is-outside': !inRange, 'is-today': isToday, 'is-month': isMonth, 'is-disabled': (!inRange || disabled) }"
   [tabIndex]="isFocused ? 0 : -1"
   (click)="handleClick($event)"
