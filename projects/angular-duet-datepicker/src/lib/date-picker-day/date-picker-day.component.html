@@ -1,0 +1,14 @@
+<button class="duet-date__day" type="button"
+  [ngClass]="{ 'is-outside': !inRange, 'is-today': isToday, 'is-month': isMonth, 'is-disabled': (!inRange || disabled) }"
+  [tabIndex]="isFocused ? 0 : -1"
+  (click)="handleClick($event)"
+  (keydown)="handleKeyboardNavigation($event)"
+  [attr.aria-disabled]="(!inRange || disabled)"
+  [disabled]="(!inRange || disabled)"
+  [attr.aria-pressed]="isSelected"
+  [attr.aria-current]="isToday ? 'date' : undefined">
+
+  <span aria-hidden="true"> {{ day.getDate() }}</span>
+  <span class="duet-date__vhidden">{{ dateFormatter?.format(day) }}</span>
+
+</button>

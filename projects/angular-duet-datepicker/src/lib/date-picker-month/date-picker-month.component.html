@@ -1,0 +1,27 @@
+<table class="duet-date__table" [attr.aria-labelledby]="labelledById">
+  <thead>
+    <tr>
+      <th class="duet-date__table-header" scope="col" *ngFor="let dayName of localization?.dayNames">
+        <span aria-hidden="true">{{ dayName.substring(0, 2) }}</span>
+        <span class="duet-date__vhidden"> {{ dayName }} </span>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="duet-date__row" *ngFor="let week of chunk(days, 7)">
+      <td class="duet-date__cell" *ngFor="let day of week">
+        <app-date-picker-day
+          [day]="day"
+          [today]="today"
+          [focusedDay]="focusedDate"
+          [isSelected]="dateUtilitiesService.isEqual(day, selectedDate)"
+          [disabled]="isDateDisabled(day)"
+          [inRange]="dateUtilitiesService.inRange(day, min, max)"
+          (onDaySelect)="handleOnDaySelectEvent($event)"
+          [dateFormatter]="dateFormatter"
+          (onKeyboardNavigation)="handleOnKeyboardNavigation($event)">
+        </app-date-picker-day>
+      </td>
+    </tr>
+  </tbody>
+</table>
