@@ -1,6 +1,6 @@
 {
   "name": "@reward-insight/angular-duet-datepicker",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "repository": {
     "type": "git",
     "url": "https://github.com/rewardinsight/angular-duet-datepicker"
@@ -16,5 +16,6 @@
     "angular",
     "datepicker",
     "duet"
-  ]
+  ],
+  "license": "MIT"
 }
