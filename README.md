@@ -115,6 +115,10 @@ Duet Date Picker’s keyboard support is built to closely follow [W3C Date Picke
 
 - `Space, Enter`:  Closes the dialog, moves focus to “choose date” button, but does not update the date in input.
 
+# Publishing
+
+* Publish with the following command -> `npm publish --access public`
+
 # Work at Reward!
 
 We are hiring, see our open positions here -> https://www.rewardinsight.com/careers/
