@@ -6,7 +6,7 @@ import { DateUtilitiesService, DaysOfWeek } from '../services/date-utilities.ser
 export type DateDisabledPredicate = (date: Date) => boolean
 
 @Component({
-  selector: 'app-date-picker-month',
+  selector: 'rwd-date-picker-month',
   templateUrl: './date-picker-month.component.html',
   styleUrls: ['./date-picker-month.component.scss'],
 })

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DateUtilitiesService } from '../services/date-utilities.service';
 
 @Component({
-  selector: 'app-date-picker-day',
+  selector: 'rwd-date-picker-day',
   templateUrl: './date-picker-day.component.html',
   styleUrls: ['./date-picker-day.component.scss'],
 })

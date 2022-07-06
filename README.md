@@ -4,25 +4,49 @@ This library is a port of the Duet Date Picker library to Angular.
 
 https://github.com/duetds/date-picker
 
+
 ## Why does this exist?
 
 We found that while Angular integration is possible with the original Duet Datepicker, it was a bit messy, especially when we wanted to make any customisations or quality of life improvements. Our solution was to migrate the Datepicker to Angular, and make our QOL improvements that way.
 
-## Duet Date Picker
+## What is Duet Date Picker?
 
-Duet Date Picker is an open source version of Duet Design System’s [accessible date picker](https://www.duetds.com/components/date-picker/). Duet Date Picker can be implemented and used across any JavaScript framework or no framework at all. We accomplish this by using standardized web platform APIs and Web Components.
-
-Why yet another date picker? Our team working on [Duet Design System](https://www.duetds.com/) couldn’t find an existing date picker that would’ve ticked all the requirements we had for accessibility _(supporting WCAG 2.1 as well as we can),_ so we decided to build one and open source it so that others could benefit from this work as well.
+Duet Date Picker is an open source version of Duet Design System’s [accessible date picker](https://www.duetds.com/components/date-picker/).
 
 Duet Date Picker comes with built-in functionality that allows you to set a minimum and a maximum allowed date. These settings can be combined or used alone, depending on the need. Please note that the date values must be passed in IS0-8601 format: `YYYY-MM-DD`.
 
-**[Read getting started instructions ›](#getting-started)**
-<br/>
-**[Learn more about Duet ›](https://www.duetds.com)**
+## Getting started
+
+Adding this Datepicker to your angular app is simple:
+
+* Run `npm i @reward-insight/angular-duet-datepicker`
+* Add the following import to your module:
+
+      import { NgModule } from '@angular/core';
+      import { BrowserModule } from '@angular/platform-browser';
+      import { AngularDuetDatepickerModule } from '@reward-insight/angular-duet-datepicker'; // Angular Datepicker Import
+
+      import { AppComponent } from './app.component';
+
+      @NgModule({
+      declarations: [
+          AppComponent
+      ],
+      imports: [
+          BrowserModule,
+          AngularDuetDatepickerModule //Module Import
+      ],
+      providers: [],
+      bootstrap: [AppComponent]
+      })
+      export class AppModule { }
+
+* Use the component:
+
+      <rwd-angular-duet-datepicker></rwd-angular-duet-datepicker>
 
 ## Features
 
-- Can be used with any JavaScript framework.
 - No external dependencies.
 - Weighs only ~10kb minified and Gzip’ed (this includes all styles and icons).
 - Built with accessibility in mind.
@@ -34,7 +58,6 @@ Duet Date Picker comes with built-in functionality that allows you to set a mini
 - Support for changing the first day of the week.
 - Comes with modified interface for mobile devices to provide better user experience.
 - Supports touch gestures for changing months and closing the picker.
-- Built using [Stencil.js](https://stenciljs.com/) and Web Components.
 - Free to use under the MIT license.
 
 ## Browser support

@@ -61,7 +61,7 @@ const TRANSITION_MS = 300;
 export type DateDisabledPredicate = (date: Date) => boolean;
 
 @Component({
-  selector: 'app-angular-duet-datepicker',
+  selector: 'rwd-angular-duet-datepicker',
   templateUrl: './angular-duet-datepicker.component.html',
   styleUrls: ['./angular-duet-datepicker.component.scss'],
   encapsulation: ViewEncapsulation.None

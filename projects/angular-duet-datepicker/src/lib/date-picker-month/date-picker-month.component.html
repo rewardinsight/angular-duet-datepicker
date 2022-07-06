@@ -10,7 +10,7 @@
   <tbody>
     <tr class="duet-date__row" *ngFor="let week of chunk(days, 7)">
       <td class="duet-date__cell" *ngFor="let day of week">
-        <app-date-picker-day
+        <rwd-date-picker-day
           [day]="day"
           [today]="today"
           [focusedDay]="focusedDate"
@@ -20,7 +20,7 @@
           (onDaySelect)="handleOnDaySelectEvent($event)"
           [dateFormatter]="dateFormatter"
           (onKeyboardNavigation)="handleOnKeyboardNavigation($event)">
-        </app-date-picker-day>
+        </rwd-date-picker-day>
       </td>
     </tr>
   </tbody>

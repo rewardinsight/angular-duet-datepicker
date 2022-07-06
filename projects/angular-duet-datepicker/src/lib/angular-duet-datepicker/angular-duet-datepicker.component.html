@@ -1,5 +1,5 @@
 <div class="duet-date">
-  <app-date-picker-input
+  <rwd-date-picker-input
     [dateFormatter]="dateFormatLong"
     [value]="value"
     [valueAsDate]="valueAsDate"
@@ -14,7 +14,7 @@
     [required]="required"
     [identifier]="identifier"
     [localization]="localization">
-  </app-date-picker-input>
+  </rwd-date-picker-input>
 
   <div class="duet-date__dialog"
       [ngClass]="{'is-left': direction === 'left', 'is-active': open }"
@@ -144,7 +144,7 @@
           </div>
         </div>
 
-        <app-date-picker-month
+        <rwd-date-picker-month
           [dateFormatter]="dateFormatShort"
           [selectedDate]="valueAsDate"
           [focusedDate]="focusedDay"
@@ -156,7 +156,7 @@
           [min]="minDate"
           [max]="maxDate"
           [isDateDisabled]="isDateDisabled">
-        </app-date-picker-month>
+        </rwd-date-picker-month>
 
       </div>
 
