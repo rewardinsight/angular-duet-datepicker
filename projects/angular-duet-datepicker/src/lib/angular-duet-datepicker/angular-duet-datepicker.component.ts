@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  forwardRef,
   HostListener,
   Input,
   OnInit,
@@ -24,6 +25,7 @@ import {
   OnDaySelectEvent,
   OnKeyboardNavigationEvent,
 } from '../date-picker-day/date-picker-day.component';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 const keyCode = {
   TAB: 9,
@@ -64,9 +66,16 @@ export type DateDisabledPredicate = (date: Date) => boolean;
   selector: 'rwd-angular-duet-datepicker',
   templateUrl: './angular-duet-datepicker.component.html',
   styleUrls: ['./angular-duet-datepicker.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => AngularDuetDatepickerComponent),
+      multi: true,
+    },
+  ],
 })
-export class AngularDuetDatepickerComponent implements OnInit {
+export class AngularDuetDatepickerComponent implements OnInit, ControlValueAccessor {
   public activeFocus = false;
   public focusedDay = new Date();
   public open = false;
@@ -160,6 +169,21 @@ export class AngularDuetDatepickerComponent implements OnInit {
     | undefined;
 
   constructor(public dateUtilitiesService: DateUtilitiesService) {}
+
+  onChange: any = () => {};
+  onTouched: any = () => {};
+
+  writeValue(obj: any): void {
+    this.setValue(obj);
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
 
   ngOnInit(): void {}
 
@@ -502,5 +526,8 @@ export class AngularDuetDatepickerComponent implements OnInit {
       value: this.value,
       valueAsDate: date,
     });
+
+    this.onChange(date);
+    this.onTouched();
   }
 }
