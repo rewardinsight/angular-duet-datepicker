@@ -45,6 +45,63 @@ Adding this Datepicker to your angular app is simple:
 
       <rwd-angular-duet-datepicker></rwd-angular-duet-datepicker>
 
+# Using in a Reactive Form
+
+This component works seamlessly with Reactive forms, as shown in the below example (be sure to import *ReactiveFormsModule* into your module):
+
+    import { Component } from '@angular/core';
+    import {
+      UntypedFormControl,
+      UntypedFormGroup,
+    } from '@angular/forms';
+
+    @Component({
+      selector: 'app-root',
+      template: `
+        <div>
+          <form [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
+            <input type="text" formControlName="textField" />
+            <rwd-angular-duet-datepicker formControlName="dateField"></rwd-angular-duet-datepicker>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      `,
+      styleUrls: ['./app.component.scss'],
+    })
+    export class AppComponent {
+
+      myFormGroup = new UntypedFormGroup({
+        textField: new UntypedFormControl(''),
+        dateField: new UntypedFormControl(''),
+      });
+
+      onSubmit() {
+        console.log(this.myFormGroup.value);
+      }
+    }
+
+## Customise the theming
+
+You can customise the appearance of this component by adding and modifying the following SCSS variables to your *styles.scss* file:
+
+    :root {
+      --duet-color-primary: #005fcc;
+      --duet-color-text: #333;
+      --duet-color-text-active: #fff;
+      --duet-color-placeholder: #666;
+      --duet-color-button: #f5f5f5;
+      --duet-color-surface: #fff;
+      --duet-color-overlay: rgba(0, 0, 0, 0.8);
+      --duet-color-border: #333;
+
+      --duet-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --duet-font-normal: 400;
+      --duet-font-bold: 600;
+
+      --duet-radius: 4px;
+      --duet-z-index: 600;
+    }
+
 ## Features
 
 - No external dependencies.
