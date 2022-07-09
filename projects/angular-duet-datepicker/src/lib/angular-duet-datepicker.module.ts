@@ -18,9 +18,7 @@ import { DatePickerMonthComponent } from './date-picker-month/date-picker-month.
     FormsModule
   ],
   exports: [
-    AngularDuetDatepickerComponent,
-    DatePickerInputComponent,
-    DatePickerMonthComponent
+    AngularDuetDatepickerComponent
   ]
 })
 export class AngularDuetDatepickerModule { }
