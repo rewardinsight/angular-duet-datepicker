@@ -1,10 +1,14 @@
 import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DuetLocalizedText } from '../date-localization';
-import { SeperatorLocation } from '../datepicker-types';
 
 export class OnClickEvent {
   constructor(public event: MouseEvent) {}
+}
+
+export type SeperatorLocation = {
+  seperator: string;
+  location: number;
 }
 
 @Component({

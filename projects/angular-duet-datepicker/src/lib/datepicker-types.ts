@@ -13,13 +13,3 @@ export const keyCode = {
   RIGHT: 39,
   DOWN: 40,
 };
-
-export class SeperatorLocation {
-  seperator: string;
-  location: number;
-
-  constructor(seperator: string, location: number) {
-    this.seperator = seperator;
-    this.location = location;
-  }
-}

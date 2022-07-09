@@ -10,7 +10,8 @@ import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR
 import isoAdapter, { DuetDateAdapter } from '../date-adapter';
 import defaultLocalization, { DuetLocalizedText } from '../date-localization';
 import { OnDaySelectEvent } from '../date-picker-day/date-picker-day.component';
-import { DuetDatePickerDirection, keyCode, SeperatorLocation } from '../datepicker-types';
+import { SeperatorLocation } from '../date-picker-input/date-picker-input.component';
+import { DuetDatePickerDirection, keyCode } from '../datepicker-types';
 import {
   DateUtilitiesService,
   DaysOfWeek,
