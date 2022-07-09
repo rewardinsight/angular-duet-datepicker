@@ -1,28 +1,25 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
+import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DuetLocalizedText } from '../date-localization';
+import { SeperatorLocation } from '../datepicker-types';
 
 export class OnClickEvent {
   constructor(public event: MouseEvent) {}
 }
 
-export class OnInputEvent {
-  constructor(public event: Event) {}
-}
-
-export class OnBlurEvent {
-  constructor(public event: FocusEvent) {}
-}
-
-export class OnFocusEvent {
-  constructor(public event: FocusEvent) {}
-}
-
 @Component({
   selector: 'rwd-date-picker-input',
   templateUrl: './date-picker-input.component.html',
-  styleUrls: ['./date-picker-input.component.scss']
+  styleUrls: ['./date-picker-input.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DatePickerInputComponent),
+      multi: true,
+    }
+  ],
 })
-export class DatePickerInputComponent implements OnInit {
+export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
 
   @Input() value?: string;
   @Input() formattedValue?: string;
@@ -34,13 +31,28 @@ export class DatePickerInputComponent implements OnInit {
   @Input() required: boolean = false;
   @Input() role?: string;
   @Input() dateFormatter?: Intl.DateTimeFormat;
-
-  @Output() onClick = new EventEmitter<OnClickEvent>();
-  @Output() onInput = new EventEmitter<OnInputEvent>();
-  @Output() onBlur = new EventEmitter<OnBlurEvent>();
-  @Output() onFocus = new EventEmitter<OnFocusEvent>();
+  @Input() maxInputLength = 99;
+  @Input() seperatorLocations: SeperatorLocation[] = [];
 
   constructor() { }
+
+  onChange: any = () => {};
+  onTouched: any = () => {};
+
+  @Output() onClick = new EventEmitter<OnClickEvent>();
+  @Output() onInputChange = new EventEmitter();
+
+  writeValue(obj: any): void {
+    this.formattedValue = obj;
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
 
   ngOnInit(): void {
   }
@@ -50,14 +62,26 @@ export class DatePickerInputComponent implements OnInit {
   }
 
   handleOnInput(event: Event) {
-    this.onInput.emit(new OnInputEvent(event));
-  }
 
-  handleOnBlur(event: FocusEvent) {
-    this.onBlur.emit(new OnBlurEvent(event));
-  }
+    const inputElement = (event.target as HTMLInputElement);
 
-  handleOnFocus(event: FocusEvent) {
-    this.onFocus.emit(new OnFocusEvent(event));
+    if (this.seperatorLocations.length > 0) {
+
+      for(var i = 0; i < this.seperatorLocations.length; i++) {
+
+        var p = this.seperatorLocations[i];
+
+        const seperatorCount = inputElement.value.split(p.seperator).length - 1;
+
+        if (inputElement.value.length - seperatorCount == p.location) {
+          inputElement.value = inputElement.value + p.seperator;
+          event.preventDefault();
+          break;
+        }
+      }
+    }
+
+    this.onChange((event.target as HTMLInputElement).value);
+    this.onInputChange.emit();
   }
 }

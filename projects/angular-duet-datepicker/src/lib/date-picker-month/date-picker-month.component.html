@@ -8,9 +8,10 @@
     </tr>
   </thead>
   <tbody>
-    <tr class="duet-date__row" *ngFor="let week of chunk(days, 7)">
-      <td class="duet-date__cell" *ngFor="let day of week">
+    <tr class="duet-date__row" *ngFor="let week of weeks;">
+      <td class="duet-date__cell" *ngFor="let day of week;">
         <rwd-date-picker-day
+          tabindex="-1"
           [day]="day"
           [today]="today"
           [focusedDay]="focusedDate"
@@ -18,8 +19,8 @@
           [disabled]="isDateDisabled(day)"
           [inRange]="dateUtilitiesService.inRange(day, min, max)"
           (onDaySelect)="handleOnDaySelectEvent($event)"
-          [dateFormatter]="dateFormatter"
-          (onKeyboardNavigation)="handleOnKeyboardNavigation($event)">
+          [localization]="localization"
+          [dateFormatter]="dateFormatter">
         </rwd-date-picker-day>
       </td>
     </tr>

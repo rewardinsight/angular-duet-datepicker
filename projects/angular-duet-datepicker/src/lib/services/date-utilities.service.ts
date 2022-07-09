@@ -86,7 +86,7 @@ export class DateUtilitiesService {
   /**
    * Compare if two dates are equal in terms of day, month, and year
    */
-  isEqual(a: Date, b: Date): boolean {
+  isEqual(a?: Date, b?: Date): boolean {
     if (a == null || b == null) {
       return false;
     }
@@ -131,7 +131,7 @@ export class DateUtilitiesService {
     var day = d.getDay();
     var diff = (day < firstDayOfWeek ? 7 : 0) + day - firstDayOfWeek;
 
-    d.setDate(d.getDate() - diff);
+    d.setDate(d.getDate() - diff - 1);
     return d;
   }
 

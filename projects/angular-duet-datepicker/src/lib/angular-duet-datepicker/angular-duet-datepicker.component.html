@@ -1,36 +1,33 @@
 <div class="duet-date">
+
   <rwd-date-picker-input
     [dateFormatter]="dateFormatLong"
     [value]="value"
-    [valueAsDate]="valueAsDate"
-    [formattedValue]="formattedDate"
-    (onInput)="handleInputChange($event)"
-    (onBlur)="handleBlur($event)"
-    (onFocus)="handleFocus($event)"
-    (onClick)="toggleOpen($event)"
+    [(ngModel)]="dateInput"
     [name]="name"
     [disabled]="disabled"
     [role]="role"
+    (onClick)="toggleDialog()"
+    (onInputChange)="handleInputChange()"
     [required]="required"
     [identifier]="identifier"
+    [maxInputLength]="maxInputLength"
+    [seperatorLocations]="seperatorLocations"
     [localization]="localization">
   </rwd-date-picker-input>
 
   <div class="duet-date__dialog"
-      [ngClass]="{'is-left': direction === 'left', 'is-active': open }"
+      [ngClass]="{'is-left': direction === 'left', 'is-active': dialogOpen }"
       role="dialog"
       aria-modal="true"
-      [attr.aria-hidden]="(open ? 'false' : 'true')"
-      [attr.aria-labelledby]="dialogLabelId"
-      (touchMove)="handleTouchMove($event)"
-      (touchStart)="handleTouchStart($event)"
-      (touchEnd)="handleTouchEnd($event)">
+      [attr.aria-hidden]="(dialogOpen ? 'false' : 'true')"
+      [attr.aria-labelledby]="dialogLabelId">
 
-      <div id="dialog-wrapper" class="duet-date__dialog-content" (keyDown)="handleEscKey($event)">
+      <div id="dialog-wrapper" class="duet-date__dialog-content">
 
-        <div class="duet-date__mobile" (focusIn)="disableActiveFocus()">
+        <div class="duet-date__mobile">
           <label class="duet-date__mobile-heading">{{ localization.calendarHeading }}</label>
-          <button class="duet-date__close" (keyDown)="handleFirstFocusableKeydown($event)" (click)="hide(true)" type="button">
+          <button [attr.aria-label]="localization?.closeLabel" class="duet-date__close" (click)="toggleDialog()" type="button">
               <svg
               aria-hidden="true"
               fill="currentColor"
@@ -46,7 +43,7 @@
           </button>
         </div>
 
-        <div class="duet-date__header" (focusIn)="disableActiveFocus()">
+        <div class="duet-date__header">
 
           <div>
             <h2 [id]="dialogLabelId" class="duet-date__vhidden" aria-live="polite" aria-atomic="true">
@@ -58,10 +55,11 @@
             </label>
 
             <div class="duet-date__select">
-              <select [id]="monthSelectId" class="duet-date__select--month" (change)="handleMonthSelect($event)">
+              <select [id]="monthSelectId" [attr.aria-label]="localization.monthSelectLabel" class="duet-date__select--month" (change)="handleMonthSelect($event)">
                 <option *ngFor="let month of localization.monthNames; let i = index;"
                         [attr.key]="month"
                         [value]="i"
+                        [attr.aria-label]="localization.monthSelectLabel + ' ' + month"
                         [disabled]="isMonthDisabled(i)"
                         [selected]="(i === focusedMonth)">
                         {{ month }}
@@ -88,9 +86,10 @@
 
             <div class="duet-date__select">
 
-              <select [id]="yearSelectId" class="duet-date__select--year" (change)="handleYearSelect($event)">
+              <select [id]="yearSelectId" [attr.aria-label]="localization.yearSelectLabel" class="duet-date__select--year" (change)="handleYearSelect($event)">
                 <option *ngFor="let year of range(minYear, maxYear)"
                   [attr.key]="year"
+                  [attr.aria-label]="localization.yearSelectLabel + ' ' + year"
                   [selected]="year === focusedYear">
                   {{ year }}
                 </option>
@@ -115,7 +114,7 @@
 
           <div class="duet-date__nav">
 
-            <button class="duet-date__prev" (click)="handlePreviousMonthClick($event)" [disabled]="prevMonthDisabled" type="button">
+            <button [attr.aria-label]="localization?.prevMonthLabel" class="duet-date__prev" (click)="handlePreviousMonthClick($event)" [disabled]="prevMonthDisabled" type="button">
                 <svg
                 aria-hidden="true"
                 fill="currentColor"
@@ -128,7 +127,7 @@
               <span class="duet-date__vhidden">{{ localization.prevMonthLabel }}</span>
             </button>
 
-            <button class="duet-date__next" (click)="handleNextMonthClick($event)" [disabled]="nextMonthDisabled" type="button">
+            <button [attr.aria-label]="localization?.nextMonthLabel" class="duet-date__next" (click)="handleNextMonthClick($event)" [disabled]="nextMonthDisabled" type="button">
                 <svg
                 aria-hidden="true"
                 fill="currentColor"
@@ -143,19 +142,17 @@
 
           </div>
         </div>
-
         <rwd-date-picker-month
-          [dateFormatter]="dateFormatShort"
-          [selectedDate]="valueAsDate"
+          [dateFormatter]="dateFormatLong"
+          [selectedDate]="selectedDay"
           [focusedDate]="focusedDay"
-          (onDaySelect)="handleDaySelect($event)"
-          (onKeyboardNavigation)="handleKeyboardNavigation($event)"
+          [(ngModel)]="selectedDay"
           [labelledById]="dialogLabelId"
           [localization]="localization"
           [firstDayOfWeek]="firstDayOfWeek"
           [min]="minDate"
-          [max]="maxDate"
-          [isDateDisabled]="isDateDisabled">
+          (onDaySelect)="handleDaySelect($event)"
+          [max]="maxDate">
         </rwd-date-picker-month>
 
       </div>

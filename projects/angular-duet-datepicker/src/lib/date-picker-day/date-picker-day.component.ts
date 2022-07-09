@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterContentInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { DuetLocalizedText } from '../date-localization';
 import { DateUtilitiesService } from '../services/date-utilities.service';
 
 @Component({
@@ -6,39 +7,35 @@ import { DateUtilitiesService } from '../services/date-utilities.service';
   templateUrl: './date-picker-day.component.html',
   styleUrls: ['./date-picker-day.component.scss'],
 })
-export class DatePickerDayComponent implements OnInit {
+export class DatePickerDayComponent implements OnInit, AfterContentInit {
+
   @Input() focusedDay: Date = new Date();
   @Input() today: Date = new Date();
   @Input() day: Date = new Date();
+
   @Input() disabled: boolean = false;
   @Input() inRange?: boolean;
   @Input() isSelected: boolean = false;
   @Input() dateFormatter?: Intl.DateTimeFormat;
+  @Input() tabIndex = 0;
+  @Input() localization?: DuetLocalizedText;
 
   @Output() onDaySelect = new EventEmitter<OnDaySelectEvent>();
-  @Output() onKeyboardNavigation = new EventEmitter<OnKeyboardNavigationEvent>();
 
-  public id = this.newGuid();
+  public isMonth?: boolean;
+  public isFocused?: boolean;
+  public isToday?: boolean;
 
-  get isMonth() {
-    return this.dateUtilitiesService.isEqualMonth(this.day, this.focusedDay);
-  }
-
-  get isFocused() {
-    const isFocused = this.dateUtilitiesService.isEqual(this.day, this.focusedDay);
-
-    if (isFocused) {
-      document.getElementById(this.id)?.focus();
-    }
-
-    return isFocused;
-  }
-
-  get isToday() {
-    return this.dateUtilitiesService.isEqual(this.day, this.today);
-  }
+  public ariaLabel = 'Select';
 
   constructor(private dateUtilitiesService: DateUtilitiesService) {
+  }
+
+  ngAfterContentInit(): void {
+    this.isMonth = this.dateUtilitiesService.isEqualMonth(this.day, this.focusedDay);
+    this.isFocused = this.dateUtilitiesService.isEqual(this.day, this.focusedDay);
+    this.isToday = this.dateUtilitiesService.isEqual(this.day, this.today);
+    this.ariaLabel = this.dateFormatter?.format(this.day) + ' - ' + this.localization?.selectThisDateMessage;
   }
 
   ngOnInit(): void {
@@ -47,26 +44,8 @@ export class DatePickerDayComponent implements OnInit {
   handleClick(e: MouseEvent) {
     this.onDaySelect.emit(new OnDaySelectEvent(e, this.day));
   }
-
-  handleKeyboardNavigation(e: KeyboardEvent) {
-    this.onKeyboardNavigation.emit(new OnKeyboardNavigationEvent(e));
-  }
-
-  newGuid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0,
-        v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
 }
 
 export class OnDaySelectEvent {
   constructor(public event: MouseEvent, public day: Date) {}
 }
-
-export class OnKeyboardNavigationEvent {
-  constructor(public event: KeyboardEvent) {}
-}
-
-

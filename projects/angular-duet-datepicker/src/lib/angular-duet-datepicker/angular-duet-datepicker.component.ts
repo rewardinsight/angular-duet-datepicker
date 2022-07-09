@@ -1,66 +1,20 @@
 import {
   Component,
-  ElementRef,
-  EventEmitter,
   forwardRef,
   HostListener,
   Input,
   OnInit,
-  Output,
-  ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
+import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import isoAdapter, { DuetDateAdapter } from '../date-adapter';
 import defaultLocalization, { DuetLocalizedText } from '../date-localization';
+import { OnDaySelectEvent } from '../date-picker-day/date-picker-day.component';
+import { DuetDatePickerDirection, keyCode, SeperatorLocation } from '../datepicker-types';
 import {
   DateUtilitiesService,
   DaysOfWeek,
 } from '../services/date-utilities.service';
-import isoAdapter, { DuetDateAdapter } from '../date-adapter';
-import {
-  OnClickEvent,
-  OnFocusEvent,
-  OnInputEvent,
-} from '../date-picker-input/date-picker-input.component';
-import {
-  OnDaySelectEvent,
-  OnKeyboardNavigationEvent,
-} from '../date-picker-day/date-picker-day.component';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
-const keyCode = {
-  TAB: 9,
-  ESC: 27,
-  SPACE: 32,
-  PAGE_UP: 33,
-  PAGE_DOWN: 34,
-  END: 35,
-  HOME: 36,
-  LEFT: 37,
-  UP: 38,
-  RIGHT: 39,
-  DOWN: 40,
-};
-
-export type DuetDatePickerChangeEvent = {
-  component: 'duet-date-picker';
-  valueAsDate: Date;
-  value: string;
-};
-export type DuetDatePickerFocusEvent = {
-  component: 'duet-date-picker';
-};
-export type DuetDatePickerOpenEvent = {
-  component: 'duet-date-picker';
-};
-export type DuetDatePickerCloseEvent = {
-  component: 'duet-date-picker';
-};
-export type DuetDatePickerDirection = 'left' | 'right';
-
-const DISALLOWED_CHARACTERS = /[^0-9\.\/\-]+/g;
-const TRANSITION_MS = 300;
-
-export type DateDisabledPredicate = (date: Date) => boolean;
 
 @Component({
   selector: 'rwd-angular-duet-datepicker',
@@ -73,108 +27,45 @@ export type DateDisabledPredicate = (date: Date) => boolean;
       useExisting: forwardRef(() => AngularDuetDatepickerComponent),
       multi: true,
     },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: AngularDuetDatepickerComponent,
+      multi: true
+    }
   ],
 })
-export class AngularDuetDatepickerComponent implements OnInit, ControlValueAccessor {
-  public activeFocus = false;
-  public focusedDay = new Date();
-  public open = false;
+export class AngularDuetDatepickerComponent implements OnInit, ControlValueAccessor, Validator {
 
-  public dateFormatShort?: Intl.DateTimeFormat;
-  public dateFormatLong?: Intl.DateTimeFormat;
+  constructor(private dateUtilitiesService: DateUtilitiesService) {}
 
-  get valueAsDate() {
-    return this.dateUtilitiesService.parseISODate(this.value) ?? new Date();
+  validate(control: AbstractControl<any, any>): ValidationErrors | null {
+    let validationErrors: ValidationErrors = [];
+
+    if(this.required && this.selectedDay == undefined) {
+      validationErrors['push']({"DateRequiredError": "Date is required"});
+      return validationErrors;
+    }
+
+    if (this.minDate != undefined && this.selectedDay != undefined) {
+      if (this.selectedDay < this.minDate) {
+        validationErrors['push']({"MinDateError": "Selected date is less than the minimum date"});
+      }
+    }
+
+    if (this.maxDate != undefined && this.selectedDay != undefined) {
+      if (this.selectedDay > this.maxDate) {
+        validationErrors['push']({"MaxDateError": "Selected date is greater than the maximum date"});
+      }
+    }
+
+    return validationErrors;
   }
-
-  get formattedDate() {
-    return this.valueAsDate && this.dateAdapter.format(this.valueAsDate);
-  }
-
-  get selectedYear() {
-    return (this.valueAsDate || this.focusedDay).getFullYear();
-  }
-
-  get focusedMonth() {
-    return this.focusedDay.getMonth();
-  }
-
-  get focusedYear() {
-    return this.focusedDay.getFullYear();
-  }
-
-  get minDate() {
-    return this.dateUtilitiesService.parseISODate(this.min);
-  }
-
-  get maxDate() {
-    return this.dateUtilitiesService.parseISODate(this.max);
-  }
-
-  get prevMonthDisabled() {
-    return (
-      this.minDate != null &&
-      this.minDate.getMonth() === this.focusedMonth &&
-      this.minDate.getFullYear() === this.focusedYear
-    );
-  }
-
-  get nextMonthDisabled() {
-    return (
-      this.maxDate != null &&
-      this.maxDate.getMonth() === this.focusedMonth &&
-      this.maxDate.getFullYear() === this.focusedYear
-    );
-  }
-
-  get minYear() {
-    return this.minDate ? this.minDate.getFullYear() : this.selectedYear - 10;
-  }
-
-  get maxYear() {
-    return this.maxDate ? this.maxDate.getFullYear() : this.selectedYear + 10;
-  }
-
-  @Input() name: string = 'date';
-  @Input() identifier: string = '';
-  @Input() disabled: boolean = false;
-  @Input() role?: string;
-  @Input() direction: DuetDatePickerDirection = 'right';
-  @Input() required: boolean = false;
-  @Input() value: string = '';
-  @Input() min: string = '';
-  @Input() max: string = '';
-  @Input() firstDayOfWeek: DaysOfWeek = DaysOfWeek.Monday;
-  @Input() localization: DuetLocalizedText = defaultLocalization;
-  @Input() dateAdapter: DuetDateAdapter = isoAdapter;
-
-  @Output() duetChange = new EventEmitter<DuetDatePickerChangeEvent>();
-  @Output() duetBlur = new EventEmitter<DuetDatePickerFocusEvent>();
-  @Output() duetFocus = new EventEmitter<DuetDatePickerFocusEvent>();
-  @Output() duetOpen = new EventEmitter<DuetDatePickerOpenEvent>();
-  @Output() duetClose = new EventEmitter<DuetDatePickerCloseEvent>();
-
-  public initialTouchX: number = -1;
-  public initialTouchY: number = -1;
-
-  public monthSelectId =
-    this.dateUtilitiesService.createIdentifier('DuetDateMonth');
-  public yearSelectId =
-    this.dateUtilitiesService.createIdentifier('DuetDateYear');
-  public dialogLabelId =
-    this.dateUtilitiesService.createIdentifier('DuetDateLabel');
-
-  @ViewChild('dialog-wrapper') dialogWrapper:
-    | ElementRef<HTMLElement>
-    | undefined;
-
-  constructor(public dateUtilitiesService: DateUtilitiesService) {}
 
   onChange: any = () => {};
   onTouched: any = () => {};
 
   writeValue(obj: any): void {
-    this.setValue(obj);
+    this.selectedDay = obj;
   }
 
   registerOnChange(fn: any): void {
@@ -185,7 +76,115 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
     this.onTouched = fn;
   }
 
-  ngOnInit(): void {}
+  @Input() name: string = 'date';
+  @Input() identifier: string = '';
+  @Input() disabled: boolean = false;
+  @Input() role?: string;
+  @Input() direction: DuetDatePickerDirection = 'right';
+  @Input() required: boolean = false;
+  @Input() value: string = '';
+  @Input() min: string = '1900-01-01';
+  @Input() max: string = '2099-12-30';
+  @Input() maxInputLength = 99;
+  @Input() firstDayOfWeek: DaysOfWeek = DaysOfWeek.Monday;
+  @Input() localization: DuetLocalizedText = defaultLocalization;
+  @Input() dateAdapter: DuetDateAdapter = isoAdapter;
+  @Input() seperatorLocations: SeperatorLocation[] = [];
+
+  public dateFormatShort?: Intl.DateTimeFormat;
+  public dateFormatLong?: Intl.DateTimeFormat;
+
+  public dateInput = '';
+  public selectedDay?: any;
+  public focusedDay = new Date();
+  public dialogOpen = false;
+
+  public monthSelectId =
+    this.dateUtilitiesService.createIdentifier('DuetDateMonth');
+  public yearSelectId =
+    this.dateUtilitiesService.createIdentifier('DuetDateYear');
+  public dialogLabelId =
+    this.dateUtilitiesService.createIdentifier('DuetDateLabel');
+
+  public valueAsDate?: Date;
+  public formattedDate?: string;
+  public selectedYear?: number;
+  public focusedMonth: number = 0;
+  public focusedYear: number = 1900;
+  public minDate?: Date;
+  public maxDate?: Date;
+  public prevMonthDisabled?: boolean;
+  public nextMonthDisabled?: boolean;
+  public minYear?: number;
+  public maxYear?: number;
+
+
+  ngOnInit(): void {
+    this.createDateFormatters();
+
+    let today = new Date();
+
+    this.minDate = this.dateUtilitiesService.parseISODate(this.min);
+
+    if (this.max == '') {
+      this.maxDate = new Date();
+    } else {
+      this.maxDate = this.dateUtilitiesService.parseISODate(this.max);
+    }
+
+    if (this.maxDate == undefined) {
+      throw Error('Max Date undefined');
+    }
+
+    if (this.value != '') {
+      this.valueAsDate = this.dateUtilitiesService.parseISODate(this.value);
+
+      if (!this.valueAsDate) {
+        throw new Error('Value as date invalid');
+      }
+
+      this.focusedDay = this.valueAsDate;
+
+      if (this.valueAsDate && this.valueAsDate > this.maxDate) {
+        throw new Error('Supplied date greater than maximum date');
+      }
+    } else {
+      if (this.maxDate < today) {
+        this.focusedDay = this.maxDate;
+      } else {
+        this.focusedDay = today;
+      }
+    }
+
+    if (this.valueAsDate == undefined) {
+      this.formattedDate = '';
+    } else {
+      this.formattedDate =
+        this.valueAsDate && this.dateAdapter.format(this.valueAsDate);
+    }
+
+    this.selectedYear = (this.valueAsDate || this.focusedDay).getFullYear();
+
+    this.focusedMonth = this.focusedDay.getMonth();
+    this.focusedYear = this.focusedDay.getFullYear();
+
+    this.prevMonthDisabled =
+      this.minDate != null &&
+      this.minDate.getMonth() === this.focusedMonth &&
+      this.minDate.getFullYear() === this.focusedYear;
+
+    this.nextMonthDisabled =
+      this.maxDate != null &&
+      this.maxDate.getMonth() === this.focusedMonth &&
+      this.maxDate.getFullYear() === this.focusedYear;
+
+    this.minYear = this.minDate
+      ? this.minDate.getFullYear()
+      : this.selectedYear - 10;
+    this.maxYear = this.maxDate
+      ? this.maxDate.getFullYear()
+      : this.selectedYear + 10;
+  }
 
   createDateFormatters() {
     this.dateFormatShort = new Intl.DateTimeFormat(this.localization.locale, {
@@ -199,103 +198,12 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
     });
   }
 
-  range(from: number, to: number) {
-    var result: number[] = [];
-    for (var i = from; i <= to; i++) {
-      result.push(i);
+  toggleDialog() {
+    this.dialogOpen = !this.dialogOpen;
+
+    if (!this.dialogOpen && this.selectedDay != undefined) {
+      this.setFocusedDay(this.selectedDay);
     }
-    return result;
-  }
-
-  cleanValue(input: HTMLInputElement, regex: RegExp): string {
-    const value = input.value;
-    const cursor = input.selectionStart ?? undefined;
-
-    const beforeCursor = value.slice(0, cursor);
-    const afterCursor = value.slice(cursor, value.length);
-
-    const filteredBeforeCursor = beforeCursor.replace(regex, '');
-    const filterAfterCursor = afterCursor.replace(regex, '');
-
-    const newValue = filteredBeforeCursor + filterAfterCursor;
-    const newCursor = filteredBeforeCursor.length;
-
-    input.value = newValue;
-    input.selectionStart = input.selectionEnd = newCursor;
-
-    return newValue;
-  }
-
-  @HostListener('document:click', ['$event'])
-  clickout(event: MouseEvent) {
-
-    const dialogWrapper = document.getElementById('dialog-wrapper') as any;
-    const datePickerButton = document.getElementById('date-picker-button') as any;
-
-    if (!this.open) {
-      return
-    }
-
-    const isClickOutside = !event.composedPath().includes(dialogWrapper) && !event.composedPath().includes(datePickerButton);
-
-    if (isClickOutside) {
-      this.hide(false)
-    }
-  }
-
-  hide(moveFocusToButton: boolean) {
-    this.open = false;
-
-    this.duetClose.emit({
-      component: "duet-date-picker",
-    })
-  }
-
-  show() {
-    this.open = true;
-
-    this.duetOpen.emit({
-      component: "duet-date-picker",
-    });
-
-    this.setFocusedDay(this.dateUtilitiesService.parseISODate(this.value) || new Date());
-  }
-
-  enableActiveFocus = () => {
-    this.activeFocus = true;
-  };
-
-  disableActiveFocus = () => {
-    this.activeFocus = false;
-  };
-
-  addDays(days: number) {
-    this.setFocusedDay(
-      this.dateUtilitiesService.addDays(this.focusedDay, days)
-    );
-  }
-
-  addMonths(months: number) {
-    this.setMonth(this.focusedDay.getMonth() + months);
-  }
-
-  addYears(years: number) {
-    this.setYear(this.focusedDay.getFullYear() + years);
-  }
-
-  startOfWeek() {
-    this.setFocusedDay(
-      this.dateUtilitiesService.startOfWeek(
-        this.focusedDay,
-        this.firstDayOfWeek
-      )
-    );
-  }
-
-  endOfWeek() {
-    this.setFocusedDay(
-      this.dateUtilitiesService.endOfWeek(this.focusedDay, this.firstDayOfWeek)
-    );
   }
 
   setMonth(month: number) {
@@ -326,66 +234,56 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
       this.dateUtilitiesService.parseISODate(this.min),
       this.dateUtilitiesService.parseISODate(this.max)
     );
+
+    this.focusedMonth = this.focusedDay.getMonth();
+    this.focusedYear = this.focusedDay.getFullYear();
+
+    this.prevMonthDisabled =
+      this.minDate != null &&
+      this.minDate.getMonth() === this.focusedMonth &&
+      this.minDate.getFullYear() === this.focusedYear;
+
+    this.nextMonthDisabled =
+      this.maxDate != null &&
+      this.maxDate.getMonth() === this.focusedMonth &&
+      this.maxDate.getFullYear() === this.focusedYear;
   }
 
-  toggleOpen = (e: OnClickEvent) => {
-    e.event.preventDefault();
-    this.open ? this.hide(false) : this.show();
+  handleMonthSelect = (e: any) => {
+    this.setMonth(parseInt(e.target.value, 10));
   };
 
-  handleEscKey = (event: any) => {
-    if (event.keyCode === keyCode.ESC) {
-      this.hide(true);
-    }
+  handleYearSelect = (e: any) => {
+    this.setYear(parseInt(e.target.value, 10));
   };
 
-  handleBlur = (event: OnFocusEvent) => {
-    event.event.stopPropagation();
-
-    this.duetBlur.emit({
-      component: 'duet-date-picker',
-    });
-  };
-
-  handleFocus = (event: OnFocusEvent) => {
-    event.event.stopPropagation();
-
-    this.duetFocus.emit({
-      component: 'duet-date-picker',
-    });
-  };
-
-  handleTouchStart = (event: any) => {
-    const touch = event.changedTouches[0];
-    this.initialTouchX = touch.pageX;
-    this.initialTouchY = touch.pageY;
-  };
-
-  handleTouchMove = (event: any) => {
-    event.preventDefault();
-  };
-
-  handleTouchEnd = (event: any) => {
-    const touch = event.changedTouches[0];
-    const distX = touch.pageX - this.initialTouchX; // get horizontal dist traveled
-    const distY = touch.pageY - this.initialTouchY; // get vertical dist traveled
-    const threshold = 70;
-
-    const isHorizontalSwipe =
-      Math.abs(distX) >= threshold && Math.abs(distY) <= threshold;
-    const isDownwardsSwipe =
-      Math.abs(distY) >= threshold && Math.abs(distX) <= threshold && distY > 0;
-
-    if (isHorizontalSwipe) {
-      this.addMonths(distX < 0 ? 1 : -1);
-    } else if (isDownwardsSwipe) {
-      this.hide(false);
-      event.preventDefault();
+  isMonthDisabled(i: number): boolean {
+    if (!this.focusedYear) {
+      return true;
     }
 
-    this.initialTouchY = -1;
-    this.initialTouchX = -1;
-  };
+    const date = new Date(this.focusedYear, i, 1);
+    const minDate = this.minDate
+      ? this.dateUtilitiesService.startOfMonth(this.minDate)
+      : undefined;
+    const maxDate = this.maxDate
+      ? this.dateUtilitiesService.endOfMonth(this.maxDate)
+      : undefined;
+
+    return !this.dateUtilitiesService.inRange(date, minDate, maxDate);
+  }
+
+  range(from?: number, to?: number) {
+    if (from == undefined || to == undefined) {
+      throw new Error('From or To Undefined');
+    }
+
+    var result: number[] = [];
+    for (var i = from; i <= to; i++) {
+      result.push(i);
+    }
+    return result;
+  }
 
   handleNextMonthClick = (event: any) => {
     event.preventDefault();
@@ -397,47 +295,61 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
     this.addMonths(-1);
   };
 
-  handleFirstFocusableKeydown = (event: any) => {
-    // this ensures focus is trapped inside the dialog
-    if (event.keyCode === keyCode.TAB && event.shiftKey) {
-      // this.focusedDayNode.focus() hmmm.....
-      event.preventDefault();
-    }
+  addMonths(months: number) {
+    this.setMonth(this.focusedDay.getMonth() + months);
+  }
+
+  handleDaySelect = (e: OnDaySelectEvent) => {
+    this.toggleDialog();
+    this.dateInput = this.dateAdapter.format(this.selectedDay);
+    this.setFocusedDay(this.selectedDay);
+
+    this.onChange(this.selectedDay);
   };
 
-  handleKeyboardNavigation = (event: OnKeyboardNavigationEvent) => {
-    // handle tab separately, since it needs to be treated
-    // differently to other keyboard interactions
-    if (event.event.keyCode === keyCode.TAB && !event.event.shiftKey) {
-      event.event.preventDefault();
-      //this.firstFocusableElement.focus()
+  addDays(days: number) {
+    this.setFocusedDay(
+      this.dateUtilitiesService.addDays(this.focusedDay, days)
+    );
+  }
+
+  addYears(years: number) {
+    this.setYear(this.focusedDay.getFullYear() + years);
+  }
+
+  startOfWeek() {
+    this.setFocusedDay(
+      this.dateUtilitiesService.startOfWeek(
+        this.focusedDay,
+        this.firstDayOfWeek
+      )
+    );
+  }
+
+  endOfWeek() {
+    this.setFocusedDay(
+      this.dateUtilitiesService.endOfWeek(this.focusedDay, this.firstDayOfWeek)
+    );
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  handleKeyboardNavigation = (event: KeyboardEvent) => {
+    if (!this.dialogOpen) {
       return;
     }
 
     var handled = true;
 
-    switch (event.event.keyCode) {
-      case keyCode.RIGHT:
-        this.addDays(1);
-        break;
-      case keyCode.LEFT:
-        this.addDays(-1);
-        break;
-      case keyCode.DOWN:
-        this.addDays(7);
-        break;
-      case keyCode.UP:
-        this.addDays(-7);
-        break;
+    switch (event.keyCode) {
       case keyCode.PAGE_UP:
-        if (event.event.shiftKey) {
+        if (event.shiftKey) {
           this.addYears(-1);
         } else {
           this.addMonths(-1);
         }
         break;
       case keyCode.PAGE_DOWN:
-        if (event.event.shiftKey) {
+        if (event.shiftKey) {
           this.addYears(1);
         } else {
           this.addMonths(1);
@@ -450,84 +362,41 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
         this.endOfWeek();
         break;
       case keyCode.ESC:
-        this.hide(true);
+        this.toggleDialog();
         break;
       default:
         handled = false;
     }
 
     if (handled) {
-      event.event.preventDefault();
-      this.enableActiveFocus();
+      event.preventDefault();
     }
   };
 
-  isDateDisabled(day: Date): boolean {
-    return false;
+  @HostListener('document:click', ['$event'])
+  handleClick(event: MouseEvent) {
+    const dialogWrapper = document.getElementById('dialog-wrapper') as any;
+    const datePickerButton = document.getElementById('date-picker-button') as any;
+
+    if (!this.dialogOpen) {
+      return
+    }
+
+    const isClickOutside = !event.composedPath().includes(dialogWrapper) && !event.composedPath().includes(datePickerButton);
+
+    if (isClickOutside) {
+      this.toggleDialog();
+    }
   }
 
-  isMonthDisabled(i: number): boolean {
-    const date = new Date(this.focusedYear, i, 1);
-    const minDate = this.minDate
-      ? this.dateUtilitiesService.startOfMonth(this.minDate)
-      : undefined;
-    const maxDate = this.maxDate
-      ? this.dateUtilitiesService.endOfMonth(this.maxDate)
-      : undefined;
+  handleInputChange() {
 
-    return !this.dateUtilitiesService.inRange(date, minDate, maxDate);
-  }
+    const parsed = this.dateAdapter.parse(this.dateInput, this.dateUtilitiesService.createDate);
 
-  handleDaySelect = (e: OnDaySelectEvent) => {
-    const isInRange = this.dateUtilitiesService.inRange(
-      e.day,
-      this.dateUtilitiesService.parseISODate(this.min),
-      this.dateUtilitiesService.parseISODate(this.max)
-    );
-    const isAllowed = !this.isDateDisabled(e.day);
-
-    if (isInRange && isAllowed) {
-      this.setValue(e.day);
-      this.hide(true);
-    } else {
-      // for consistency we should set the focused day in cases where
-      // user has selected a day that has been specifically disallowed
-      this.setFocusedDay(e.day);
+    if (parsed != undefined) {
+      this.selectedDay = parsed;
+      this.setFocusedDay(parsed);
+      this.onChange(this.selectedDay);
     }
-  };
-
-  handleMonthSelect = (e: any) => {
-    this.setMonth(parseInt(e.target.value, 10));
-  };
-
-  handleYearSelect = (e: any) => {
-    this.setYear(parseInt(e.target.value, 10));
-  };
-
-  handleInputChange = (event: OnInputEvent) => {
-
-    const target = event.event.target as HTMLInputElement;
-
-    // // clean up any invalid characters
-    this.cleanValue(target, DISALLOWED_CHARACTERS)
-
-    const parsed = this.dateAdapter.parse(target.value, this.dateUtilitiesService.createDate);
-
-    if (parsed != undefined && parsed || target.value === "") {
-      this.setValue(parsed)
-    }
-  };
-
-  setValue(date: any) {
-    this.value = this.dateUtilitiesService.printISODate(date);
-
-    this.duetChange.emit({
-      component: "duet-date-picker",
-      value: this.value,
-      valueAsDate: date,
-    });
-
-    this.onChange(date);
-    this.onTouched();
   }
 }
