@@ -75,9 +75,6 @@ export class DatePickerMonthComponent implements OnInit, AfterContentInit, Contr
   }
 
   getViewOfMonth() {
-
-    console.clear();
-
     if (this.firstDayOfWeek == undefined) {
       throw new Error("First day of week undefined");
     }

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DuetLocalizedText } from '../date-localization';
+import { keyCode } from '../datepicker-types';
 
 export class OnClickEvent {
   constructor(public event: MouseEvent) {}
@@ -46,6 +47,8 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
   @Output() onClick = new EventEmitter<OnClickEvent>();
   @Output() onInputChange = new EventEmitter();
 
+  private lastKeyDown: number = -1;
+
   writeValue(obj: any): void {
     this.formattedValue = obj;
   }
@@ -66,7 +69,6 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
   }
 
   handleOnInput(event: Event) {
-
     const inputElement = (event.target as HTMLInputElement);
 
     if (this.seperatorLocations.length > 0) {
@@ -78,14 +80,34 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
         const seperatorCount = inputElement.value.split(p.seperator).length - 1;
 
         if (inputElement.value.length - seperatorCount == p.location) {
-          inputElement.value = inputElement.value + p.seperator;
-          event.preventDefault();
-          break;
+
+          if (this.lastKeyDown != keyCode.BACKSPACE) {
+            inputElement.value = inputElement.value + p.seperator;
+            event.preventDefault();
+            break;
+          }
         }
       }
     }
 
     this.onChange((event.target as HTMLInputElement).value);
     this.onInputChange.emit();
+  }
+
+  onKeyDown(event: any) {
+    const keyPressed = event.key;
+
+    if (this.seperatorLocations.length > 0) {
+      for(var i = 0; i < this.seperatorLocations.length; i++) {
+        var p = this.seperatorLocations[i];
+
+        if (keyPressed == p.seperator) {
+          event.preventDefault();
+          break;
+        }
+      }
+    }
+
+    this.lastKeyDown = event.keyCode;
   }
 }

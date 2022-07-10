@@ -12,4 +12,5 @@ export const keyCode = {
   UP: 38,
   RIGHT: 39,
   DOWN: 40,
+  BACKSPACE: 8
 };

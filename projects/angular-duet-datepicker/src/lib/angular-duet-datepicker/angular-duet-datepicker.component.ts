@@ -394,10 +394,11 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
 
     const parsed = this.dateAdapter.parse(this.dateInput, this.dateUtilitiesService.createDate);
 
+    this.selectedDay = parsed;
+    this.onChange(this.selectedDay);
+
     if (parsed != undefined) {
-      this.selectedDay = parsed;
       this.setFocusedDay(parsed);
-      this.onChange(this.selectedDay);
     }
   }
 }

@@ -9,6 +9,7 @@
     [required]="required"
     aria-autocomplete="none"
     (input)="handleOnInput($event)"
+    (keydown)="onKeyDown($event)"
     [value]="formattedValue"
     autocomplete="off"
   />
