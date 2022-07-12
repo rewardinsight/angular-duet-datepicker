@@ -45,11 +45,12 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
 
   constructor() { }
 
-  onChange: any = () => {};
-  onTouched: any = () => {};
+  onChangeEvent: any = () => {};
+  onTouchedEvent: any = () => {};
 
   @Output() onClick = new EventEmitter<OnClickEvent>();
   @Output() onInputChange = new EventEmitter();
+  @Output() onTouched = new EventEmitter();
 
   private lastKeyDown: number = -1;
 
@@ -58,21 +59,25 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
   }
 
   registerOnChange(fn: any): void {
-    this.onChange = fn;
+    this.onChangeEvent = fn;
   }
 
   registerOnTouched(fn: any): void {
-    this.onTouched = fn;
+    this.onTouchedEvent = fn;
   }
 
   ngOnInit(): void {
   }
 
   handleOnClick(event: MouseEvent) {
+    this.onTouched.emit();
     this.onClick.emit(new OnClickEvent(event));
   }
 
   handleOnInput(event: Event) {
+
+    this.onTouched.emit();
+
     const inputElement = (event.target as HTMLInputElement);
 
     if (this.seperatorLocations.length > 0) {
@@ -94,11 +99,14 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
       }
     }
 
-    this.onChange((event.target as HTMLInputElement).value);
+    this.onChangeEvent((event.target as HTMLInputElement).value);
     this.onInputChange.emit();
   }
 
   onKeyDown(event: any) {
+
+    this.onTouched.emit();
+
     const keyPressed = event.key;
 
     if (this.seperatorLocations.length > 0) {
@@ -118,6 +126,8 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
   onPaste(event: ClipboardEvent) {
     if (this.preventPaste) {
       event.preventDefault();
+    } else {
+      this.onTouched.emit();
     }
   }
 }

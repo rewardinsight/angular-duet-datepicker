@@ -404,4 +404,8 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
       this.setFocusedDay(parsed);
     }
   }
+
+  inputTouched() {
+    this.onTouched();
+  }
 }
