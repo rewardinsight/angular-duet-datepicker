@@ -104,9 +104,6 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
   }
 
   onKeyDown(event: any) {
-
-    this.onTouched.emit();
-
     const keyPressed = event.key;
 
     if (this.seperatorLocations.length > 0) {
@@ -120,6 +117,14 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
       }
     }
 
+    if (this.showNumericKeypadOnMobile) {
+      if (event.keyCode != keyCode.BACKSPACE && isNaN(keyPressed)) {
+        event.preventDefault();
+        return;
+      }
+    }
+
+    this.onTouched.emit();
     this.lastKeyDown = event.keyCode;
   }
 
