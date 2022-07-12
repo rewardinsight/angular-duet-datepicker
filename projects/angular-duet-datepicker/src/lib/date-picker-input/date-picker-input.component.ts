@@ -118,7 +118,7 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
     }
 
     if (this.showNumericKeypadOnMobile) {
-      if (event.keyCode != keyCode.BACKSPACE && isNaN(keyPressed)) {
+      if (event.keyCode != keyCode.BACKSPACE && event.keyCode != keyCode.TAB && isNaN(keyPressed)) {
         event.preventDefault();
         return;
       }
