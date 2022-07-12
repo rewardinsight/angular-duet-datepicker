@@ -11,6 +11,9 @@
     (input)="handleOnInput($event)"
     (keydown)="onKeyDown($event)"
     [value]="formattedValue"
+    [attr.pattern]="showNumericKeypadOnMobile ? '[0-9]*' : null"
+    [attr.inputmode]="showNumericKeypadOnMobile ? 'numeric' : null"
+    (paste)="onPaste($event)"
     autocomplete="off"
   />
 
@@ -22,6 +25,8 @@
     (click)="handleOnClick($event)"
     [disabled]="disabled"
     [attr.aria-label]="localization?.buttonLabel"
+    [attr.tabindex]="hideCalendarFromScreenreader ? -1 : 0"
+    [attr.aria-hidden]="hideCalendarFromScreenreader"
     type="button"
   >
     <span class="duet-date__toggle-icon">

@@ -38,6 +38,10 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
   @Input() dateFormatter?: Intl.DateTimeFormat;
   @Input() maxInputLength = 99;
   @Input() seperatorLocations: SeperatorLocation[] = [];
+  @Input() inputPattern?: string = undefined;
+  @Input() hideCalendarFromScreenreader = false;
+  @Input() preventPaste = false;
+  @Input() showNumericKeypadOnMobile: boolean = false;
 
   constructor() { }
 
@@ -109,5 +113,11 @@ export class DatePickerInputComponent implements OnInit, ControlValueAccessor {
     }
 
     this.lastKeyDown = event.keyCode;
+  }
+
+  onPaste(event: ClipboardEvent) {
+    if (this.preventPaste) {
+      event.preventDefault();
+    }
   }
 }

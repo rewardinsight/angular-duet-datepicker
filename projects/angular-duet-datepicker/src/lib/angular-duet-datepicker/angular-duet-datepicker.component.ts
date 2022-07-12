@@ -91,6 +91,9 @@ export class AngularDuetDatepickerComponent implements OnInit, ControlValueAcces
   @Input() localization: DuetLocalizedText = defaultLocalization;
   @Input() dateAdapter: DuetDateAdapter = isoAdapter;
   @Input() seperatorLocations: SeperatorLocation[] = [];
+  @Input() showNumericKeypadOnMobile: boolean = false;
+  @Input() hideCalendarFromScreenreader = false;
+  @Input() preventPaste = false;
 
   public dateFormatShort?: Intl.DateTimeFormat;
   public dateFormatLong?: Intl.DateTimeFormat;
